@@ -16,3 +16,11 @@ python -m scripts.test_llm
 python -m math_learning_agent.graph.demo_graph
 python -m pytest -q
 ```
+
+## Phase 2
+
+```powershell
+python -m scripts.demo_wrong_problem
+```
+
+第一次运行会在 `data/` 下创建本地 SQLite 数据库。
