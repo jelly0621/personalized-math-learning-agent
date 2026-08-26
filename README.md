@@ -24,3 +24,21 @@ python -m scripts.demo_wrong_problem
 ```
 
 第一次运行会在 `data/` 下创建本地 SQLite 数据库。
+
+## Phase 3
+
+当前流程：
+
+Wrong Problem → Problem Understanding → Error Diagnosis → SQLite Persistence → Student Knowledge Profile
+
+```powershell
+python -m scripts.demo_error_diagnosis
+```
+
+## Phase 4
+
+Student History → Load Student Profile → Training Planner → Personalized Training Plan
+
+```powershell
+python -m scripts.demo_training_plan
+```
