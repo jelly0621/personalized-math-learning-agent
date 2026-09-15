@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathLearningAgent</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">M</span><div><strong>MathLearning</strong><small>Agent Web MVP</small></div></div>
+      <nav>
+        <a href="#overview" class="active">总览</a>
+        <a href="#wrong-entry">错题录入</a>
+        <a href="#profile">学生画像</a>
+        <a href="#plan">训练计划</a>
+        <a href="#training">在线训练</a>
+        <a href="#history">学习记录</a>
+        <a href="#evaluation">Evaluation</a>
+      </nav>
+      <div class="local-note">本地演示 · 数据保存在项目 SQLite</div>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div><p class="eyebrow">PERSONALIZED MATH LEARNING</p><h1>个性化数学学习 Agent</h1><p>基于真实错题构建学生画像、个性化训练与反馈闭环</p></div>
+        <span id="health-badge" class="badge neutral">检查服务中</span>
+      </header>
+
+      <section id="overview" class="section">
+        <div class="section-heading"><div><p class="eyebrow">OVERVIEW</p><h2>学习总览</h2></div><button class="ghost" id="refresh-dashboard">刷新数据</button></div>
+        <div class="flow-card">
+          <span>错题</span><b>→</b><span>分析</span><b>→</b><span>画像</span><b>→</b><span>规划</span><b>→</b><span>出题</span><b>→</b><span>作答</span><b>→</b><span>评价</span><b>→</b><span>更新画像</span>
+        </div>
+        <div class="grid two">
+          <article class="card"><h3>Top Weak Knowledge Points</h3><div id="overview-profile" class="table-wrap loading-block">加载中…</div></article>
+          <article class="card"><h3>最近训练结果</h3><div id="overview-attempts" class="stack loading-block">加载中…</div></article>
+        </div>
+      </section>
+
+      <section id="wrong-entry" class="section">
+        <div class="section-heading"><div><p class="eyebrow">WRONG PROBLEM</p><h2>错题录入</h2></div></div>
+        <div class="intake-tabs" role="tablist">
+          <button type="button" class="intake-tab active" data-intake="photo">拍照 / 上传图片</button>
+          <button type="button" class="intake-tab" data-intake="manual">手动输入</button>
+        </div>
+
+        <div id="photo-intake" class="intake-panel">
+          <div class="grid form-result">
+            <div class="card form-card">
+              <label id="photo-dropzone" class="upload-zone" for="photo-input">
+                <strong>拖拽教材图片到这里，或点击选择</strong>
+                <span>支持 JPG、PNG、WebP；最多 5 张，每张最大 10MB</span>
+                <span class="upload-action">选择图片 / 手机拍照</span>
+              </label>
+              <input id="photo-input" class="visually-hidden" type="file" name="images" accept="image/jpeg,image/png,image/webp" capture="environment" multiple>
+              <div id="photo-previews" class="preview-grid"><p class="empty">尚未选择图片</p></div>
+              <button id="extract-photo-button" type="button" class="primary" data-idle="识别图片中的题目" disabled>识别图片中的题目</button>
+              <p class="form-hint">图片只在内存中发送给 Vision Model，不会保存到项目目录。</p>
+            </div>
+            <div id="photo-batch-result" class="result-placeholder">识别后先确认、编辑并勾选题目；此步骤不会自动写入错题库。</div>
+          </div>
+          <div id="extraction-confirmation" class="hidden">
+            <div class="section-heading compact-heading"><h3 id="extraction-count"></h3><span class="muted">请核对图片识别内容后再录入</span></div>
+            <div id="extracted-problems" class="cards-grid"></div>
+            <div id="extraction-warnings"></div>
+            <button id="import-photo-button" type="button" class="primary wide-action" data-idle="分析并录入选中的错题">分析并录入选中的错题</button>
+            <p class="form-hint">正在逐题分析时请勿重复点击。教材解析仅供确认，本阶段不会写入数据库。</p>
+          </div>
+        </div>
+
+        <div id="manual-intake" class="intake-panel hidden">
+          <div class="grid form-result">
+            <form id="wrong-form" class="card form-card">
+              <label>题目 <span>*</span><textarea name="problem_text" required rows="5" placeholder="请输入高中数学题目正文"></textarea></label>
+              <label>学生答案<textarea name="student_answer" rows="2" placeholder="可留空"></textarea></label>
+              <label>正确答案<textarea name="correct_answer" rows="2" placeholder="可留空"></textarea></label>
+              <label>学生过程<textarea name="student_solution" rows="4" placeholder="可留空；缺少过程时错因可能为 unknown"></textarea></label>
+              <button type="submit" class="primary" data-idle="分析并录入错题">分析并录入错题</button>
+              <p class="form-hint">题目理解与错因诊断可能需要几十秒，请勿重复提交。</p>
+            </form>
+            <div id="wrong-result" class="result-placeholder">提交后将在这里显示题目分析和错误诊断。</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="profile" class="section">
+        <div class="section-heading"><div><p class="eyebrow">PROFILE</p><h2>学生知识画像</h2></div><button class="ghost" id="refresh-profile">刷新画像</button></div>
+        <article class="card"><div id="profile-table" class="table-wrap">加载中…</div></article>
+      </section>
+
+      <section id="plan" class="section">
+        <div class="section-heading"><div><p class="eyebrow">TRAINING PLAN</p><h2>个性化训练计划</h2></div></div>
+        <form id="plan-form" class="inline-form card"><label>计划生成题数<input name="total_questions" type="number" min="1" max="20" value="6" required></label><button type="submit" class="primary" data-idle="生成个性化训练计划">生成个性化训练计划</button><span class="form-hint">模型处理中，请稍候</span></form>
+        <div id="plan-result" class="cards-grid result-placeholder">尚未生成训练计划。</div>
+      </section>
+
+      <section id="training" class="section">
+        <div class="section-heading"><div><p class="eyebrow">ONLINE TRAINING</p><h2>在线训练</h2></div></div>
+        <div id="training-empty" class="result-placeholder">请先从训练计划中选择一个目标生成训练题。</div>
+        <article id="question-card" class="card hidden">
+          <div class="question-meta"><span id="question-id" class="badge neutral"></span><span id="question-kp" class="tags"></span><span id="question-difficulty" class="badge blue"></span></div>
+          <p id="question-text" class="question-text"></p>
+          <form id="answer-form" class="form-card compact">
+            <label>最终答案 <span>*</span><textarea name="student_answer" required rows="2"></textarea></label>
+            <label>解题过程<textarea name="student_solution" rows="4" placeholder="可选，但提供过程有助于获得更具体的反馈"></textarea></label>
+            <button type="submit" class="primary" data-idle="提交答案">提交答案</button>
+            <p class="form-hint">评价会结合数学工具和模型判断，可能需要几十秒。</p>
+          </form>
+          <div id="feedback-result"></div>
+        </article>
+      </section>
+
+      <section id="history" class="section">
+        <div class="section-heading"><div><p class="eyebrow">HISTORY</p><h2>学习记录</h2></div><button class="ghost" id="refresh-history">刷新记录</button></div>
+        <div class="cards-grid three"><article class="card"><h3>近期错题</h3><div id="wrong-history" class="stack">加载中…</div></article><article class="card"><h3>近期生成题</h3><div id="question-history" class="stack">加载中…</div></article><article class="card"><h3>近期训练记录</h3><div id="attempt-history" class="stack">加载中…</div></article></div>
+      </section>
+
+      <section id="evaluation" class="section">
+        <div class="section-heading"><div><p class="eyebrow">EVALUATION</p><h2>Pilot Evaluation</h2></div></div>
+        <div class="notice">当前仅基于 10 道真实学生薄弱题的小规模实验，不代表完整高中数学 Benchmark。</div>
+        <div id="evaluation-content" class="metric-grid">加载中…</div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

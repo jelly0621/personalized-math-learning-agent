@@ -55,12 +55,22 @@ def create_training_plan(
     return {"training_plan": plan}
 
 
-def build_training_plan_graph():
+def build_training_plan_graph(
+    *,
+    database_path: str | Path = DEFAULT_DATABASE_PATH,
+    llm_client: LLMClient | None = None,
+):
     """Build START -> load_student_profile -> create_training_plan -> END."""
 
+    def load_profile_node(state: TrainingPlanState) -> dict[str, object]:
+        return load_student_profile(state, database_path=database_path)
+
+    def create_plan_node(state: TrainingPlanState) -> dict[str, TrainingPlan]:
+        return create_training_plan(state, llm_client=llm_client)
+
     builder = StateGraph(TrainingPlanState)
-    builder.add_node("load_student_profile", load_student_profile)
-    builder.add_node("create_training_plan", create_training_plan)
+    builder.add_node("load_student_profile", load_profile_node)
+    builder.add_node("create_training_plan", create_plan_node)
     builder.add_edge(START, "load_student_profile")
     builder.add_edge("load_student_profile", "create_training_plan")
     builder.add_edge("create_training_plan", END)

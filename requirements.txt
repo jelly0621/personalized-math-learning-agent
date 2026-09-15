@@ -3,3 +3,8 @@ openai
 python-dotenv
 pydantic
 pytest
+sympy
+fastapi
+uvicorn
+httpx
+python-multipart

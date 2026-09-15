@@ -1,11 +1,16 @@
 .env
+.env.local
 .venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 .streamlit/secrets.toml
 data/*.db
+data/*.db-*
 outputs/
 !outputs/
 outputs/*
 !outputs/.gitkeep
+*.log
+*.tmp
+*.temp

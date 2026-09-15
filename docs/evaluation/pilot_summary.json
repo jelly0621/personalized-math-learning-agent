@@ -1,0 +1,43 @@
+{
+  "dataset_name": "real_student_weak_v1",
+  "case_count": 10,
+  "topic_distribution": {
+    "基本不等式求最值": 8,
+    "基本不等式与结构统一": 2
+  },
+  "solver": {
+    "verified_correct": 5,
+    "verified_incorrect": 0,
+    "unsupported": 4,
+    "symbolic_coverage": 0.5555555555555556,
+    "verified_subset": "5/5"
+  },
+  "planner": {
+    "weak_cluster_allocation_ratio": 1.0
+  },
+  "generator": {
+    "accepted_count": 3,
+    "failed_count": 0,
+    "total_cases": 3,
+    "accept_rate": 1.0,
+    "average_attempts": 1.0
+  },
+  "verifier_challenge": {
+    "challenge_case_count": 1,
+    "positive_accept_rate": 1.0,
+    "corrupted_answer_rejection_rate": 1.0
+  },
+  "observability": {
+    "total_llm_calls": 22,
+    "failed_llm_calls": 0
+  },
+  "limitations": [
+    "This first pilot was run before the later symbolic normalization patch.",
+    "The 10-case sample is small and concentrated in one weak knowledge cluster.",
+    "No student solution or error-type gold labels were available.",
+    "The 5/5 verified subset is not overall Solver accuracy.",
+    "Generator matching was judged by the LLM verifier rather than independent experts.",
+    "The synthetic Verifier Challenge contained one actual case.",
+    "No ablation baseline was run."
+  ]
+}
